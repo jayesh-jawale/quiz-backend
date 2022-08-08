@@ -21,4 +21,12 @@ async function getUserByEmail(email) {
     .findOne({email : email});
 }
 
-export {registerUser, getUserByEmail, generatePassword}
+async function getUsers(userId) {
+    return client
+    .db("quizDatabase")
+    .collection("user")
+    .find({userId})
+    .toArray();
+}
+
+export {registerUser, getUserByEmail, generatePassword, getUsers}

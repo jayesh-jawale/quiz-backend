@@ -5,6 +5,7 @@ import {
   registerUser,
   getUserByEmail,
   generatePassword,
+  getUsers
 } from "../helpers/userHelpers.js";
 
 const router = express.Router();
@@ -47,5 +48,12 @@ router.post("/login", async (req, res) => {
     }
   }
 });
+
+// Get user
+router.get("/get-user", async(req, res) => {
+  const userId = req.userId;
+  const getUser = await getUsers(userId);
+  res.send(getUser);
+})
 
 export const userRouter = router;
