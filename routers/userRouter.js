@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Add User
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
   const userFromDB = await getUserByEmail(email);
 
   if (userFromDB) {
@@ -23,6 +23,7 @@ router.post("/register", async (req, res) => {
       name: name,
       email: email,
       password: hashPassword,
+      role: role || "basic"
     });
 
     res.send(register);
@@ -30,7 +31,7 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
   const userFromDB = await getUserByEmail(email);
 
   if (!userFromDB) {
@@ -39,9 +40,14 @@ router.post("/login", async (req, res) => {
     const storedPassword = userFromDB.password;
     const comparePass = await bcrypt.compare(password, storedPassword);
     if (comparePass) {
+      if(userFromDB.role === "basic") {
       // Issue the token
       const token = jwt.sign({ id: userFromDB._id }, process.env.SECRET_KEY);
-      res.send({ message: "Successfull login", token: token });
+      res.status(200).send({ message: "Successfull login", token: token, role: role });
+      } else {
+        const token = jwt.sign({ id: userFromDB._id }, process.env.SECRET_KEY);
+        res.status(201).send({ message: "Successfull login", token: token, role: role });
+      }
     } else {
       res.status(401).send({ message: "Invalid Credentials" });
       return;
